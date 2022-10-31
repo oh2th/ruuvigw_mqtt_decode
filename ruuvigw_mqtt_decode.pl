@@ -48,12 +48,12 @@ sub handle_mqtt_message {
 	my ($topic, $message) = @_;
 	utf8::encode($topic);
 	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic);
-	my ($message_hash, $ble_mac, $ble_rssi, $ble_data, $tag_name, $tag_data);
+	my ($tag_name, $tag_data);
 
-	$message_hash = decode_json $message;
-	$ble_mac = lc($ruuvi_mac);
-	$ble_rssi = abs($message_hash->{rssi});
-	$ble_data = $message_hash->{data};
+	my ($message_hash) = decode_json $message;
+	my ($ble_mac) = lc($ruuvi_mac);
+	my ($ble_rssi) = abs($message_hash->{rssi});
+	my ($ble_adv_data) = $message_hash->{data};
 	print "Found $ble_mac with RSSI = $ble_rssi.\n" if $debug;
 
 	if (exists($tags{$ble_mac})) {
