@@ -63,7 +63,7 @@ sub handle_mqtt_message {
 	my ($ble_mac) = lc($ruuvi_mac);
 	my ($ble_rssi) = abs($message_hash->{rssi});
 	my ($ble_adv_data) = $message_hash->{data};
-	print "Found $topic with RSSI = $ble_rssi.\n" if $debug;
+	#print "Found $topic with RSSI = $ble_rssi.\n" if $debug;
 
 	if (exists($tags{$ble_mac})) {
 		$tag_name = $tags{$ble_mac};
@@ -118,7 +118,7 @@ sub handle_mqtt_message {
 # Called periodically to publish current data
 sub publish_mqtt_buffer {
 	#$mqtt->publish($pub_topic => $tag_data);
-	print "Heartbeat Interval $!\nWe should send collected data and flush the buffer.\n" if $debug;
+	print "\n* * * *\n\nHeartbeat Interval $!\nWe should send collected data and flush the buffer.\n\n* * * *\n\n" if $debug;
 	$event->restart if $event->error;
 }
 
