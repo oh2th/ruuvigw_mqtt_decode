@@ -4,9 +4,6 @@ use utf8;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-$SIG{HUP}  = \&signal_handler_hup;
-$SIG{INT}  = \&signal_handler_term;
-$SIG{TERM} = \&signal_handler_term;
 use Getopt::Long qw(GetOptions);
 
 # Install extra modules
@@ -14,6 +11,10 @@ use Net::MQTT::Simple;
 use JSON::PP qw(decode_json encode_json);
 use Async::Event::Interval;
 use IPC::Shareable;
+
+$SIG{HUP}  = \&signal_handler_hup;
+$SIG{INT}  = \&signal_handler_term;
+$SIG{TERM} = \&signal_handler_term;
 
 # Share dataspace
 tie my %tags_data, 'IPC::Shareable', {
