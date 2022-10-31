@@ -22,7 +22,7 @@ More to be supported eventually. Goal is to support the same as OH2MP ESP32 BLE2
 ## Software prerequisites
 
 - Some MQTT broker like Mosquitto running somewhere.
-- Perl libraries Net::MQTT::Simple, JSON::PP, IO::Async
+- Perl libraries Net::MQTT::Simple, JSON::PP, Async::Event::Interval
 
 ## Configure the Ruuvi Gateway
 
