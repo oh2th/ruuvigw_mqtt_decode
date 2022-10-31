@@ -6,7 +6,6 @@ use warnings;
 $SIG{HUP}  = \&signal_handler_hup;
 $SIG{INT}  = \&signal_handler_term;
 $SIG{TERM} = \&signal_handler_term;
-$SIG{ALARM} = \&signal_handler_alarm;
 use Getopt::Long qw(GetOptions);
 
 # Install extra modules
@@ -44,7 +43,6 @@ my $loop = IO::Async::Loop->new;
 my $timer = IO::Async::Timer::Periodic->new(interval => 60, on_tick => sub { \&publish_mqtt_buffer }, );
 $timer->start;
 $loop->add( $timer );
-$loop->run;
 
 # Initialize MQTT subscriptions and run for ever.
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
