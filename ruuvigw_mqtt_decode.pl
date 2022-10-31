@@ -54,7 +54,7 @@ sub handle_mqtt_message {
 	my ($ble_mac) = lc($ruuvi_mac);
 	my ($ble_rssi) = abs($message_hash->{rssi});
 	my ($ble_adv_data) = $message_hash->{data};
-	print "Found $ble_mac with RSSI = $ble_rssi.\n" if $debug;
+	print "Found $topic with RSSI = $ble_rssi.\n" if $debug;
 
 	if (exists($tags{$ble_mac})) {
 		$tag_name = $tags{$ble_mac};
