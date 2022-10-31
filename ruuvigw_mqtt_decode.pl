@@ -128,6 +128,7 @@ sub handle_mqtt_message {
 sub publish_mqtt_buffer {
 	tied(%tags_data)->lock(LOCK_EX);
 	foreach my $topic (keys %tags_data) {
+		$mqtt->publish($topic => $tags_data{$topic});
 		print "* * * * Publish: $topic = $tags_data{$topic}\n" if $debug;	
 	}
 	print "* * * * All data published.\n" if $debug;
@@ -138,13 +139,13 @@ sub publish_mqtt_buffer {
 sub signal_handler_hup {
 	$mqtt->disconnect();
 	$event->stop;
-	print "HUP on signal $!\n" if $debug;
+	print "HUP on signal!\n" if $debug;
 }
 
 sub signal_handler_term {
 	$mqtt->disconnect();
 	$event->stop;
-	print "Exit on signal $!\n" if $debug;
+	tied(%tags_data)->clean_up_all;
+	print "Exit on signal!\n" if $debug;
 	exit();
 }
-
