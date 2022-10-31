@@ -11,8 +11,7 @@ use Getopt::Long qw(GetOptions);
 # Install extra modules
 use Net::MQTT::Simple;
 use JSON::PP qw(decode_json encode_json);
-use IO::Async::Timer::Periodic;
-use IO::Async::Loop;
+use Async::Event::Interval;
 
 GetOptions(
     "debug"		=> \my $debug,
@@ -39,10 +38,12 @@ while (<INFILE>) {
 }
 
 # Initialize MQTT publish handler
-my $loop = IO::Async::Loop->new;
-my $timer = IO::Async::Timer::Periodic->new(interval => 60, on_tick => sub { \&publish_mqtt_buffer }, );
-$timer->start;
-$loop->add( $timer );
+my $event = Async::Event::Interval->new(
+    20,						# number of seconds between execs
+    \&publish_mqtt_buffer,	# code reference, or anonymous sub
+    'test'					# parameters to the callback
+);
+$event->start;
 
 # Initialize MQTT subscriptions and run for ever.
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
@@ -118,6 +119,7 @@ sub handle_mqtt_message {
 sub publish_mqtt_buffer {
 	#$mqtt->publish($pub_topic => $tag_data);
 	print "Heartbeat Interval $!\nWe should send collected data and flush the buffer.\n" if $debug;
+	$event->restart if $event->error;
 }
 
 sub signal_handler_hup {
