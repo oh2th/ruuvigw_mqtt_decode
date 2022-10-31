@@ -12,6 +12,14 @@ use Getopt::Long qw(GetOptions);
 use Net::MQTT::Simple;
 use JSON::PP qw(decode_json encode_json);
 use Async::Event::Interval;
+use IPC::Shareable;
+
+# Share dataspace
+tie my %tags_data, 'IPC::Shareable', {
+    key         => 'ruuvigw_mqtt_dataspace',
+    create      => 1,
+    destroy     => 1
+};
 
 GetOptions(
     "debug"		=> \my $debug,
@@ -106,10 +114,12 @@ sub handle_mqtt_message {
 				print "Unknown: mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, data = $ble_adv_data\n" if $debug;
 			}
 		}
+		# Map the topic and store tag data to share mem tags_data
 		my $pub_topic = $config{"pub_topic"} . "/" . $tag_name;
 		printf ("%s %s\n", $pub_topic, $tag_data) if $debug;
-		#$mqtt->publish($pub_topic => $tag_data);
-		#warn Dumper($_);
+		tied(%tags_data)->lock(LOCK_EX);
+		$tags_data{$pub_topic} = $tag_data;
+		tied(%tags_data)->unlock;
 	} else {
 		print "Skipped\t$ble_mac\n" if $debug;
 	}			
@@ -118,17 +128,25 @@ sub handle_mqtt_message {
 # Called periodically to publish current data
 sub publish_mqtt_buffer {
 	#$mqtt->publish($pub_topic => $tag_data);
-	print "\n* * * *\n\nHeartbeat Interval $!\nWe should send collected data and flush the buffer.\n\n* * * *\n\n" if $debug;
+	tied(%tags_data)->lock(LOCK_EX);
+	foreach my $topic (keys %tags_data) {
+		print "\n* * * * Publish: $topic = $tags_data{$topic}" if $debug;	
+	}
+	print "\n* * * * All data published." if $debug;
+	%{$tags_data} = ();
+	tied(%tags_data)->unlock;
 	$event->restart if $event->error;
 }
 
 sub signal_handler_hup {
 	$mqtt->disconnect();
+	$event->stop;
 	print "HUP on signal $!\n" if $debug;
 }
 
 sub signal_handler_term {
 	$mqtt->disconnect();
+	$event->stop;
 	print "Exit on signal $!\n" if $debug;
 	exit();
 }
