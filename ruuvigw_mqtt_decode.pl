@@ -135,6 +135,7 @@ sub handle_mqtt_message {
 # Called periodically to publish current data
 sub publish_mqtt_buffer {
 	tied(%config)->lock(LOCK_SH);
+	$ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
 	my $mqtt_pub = Net::MQTT::Simple->new($config{"mqtthost"});
 	$mqtt_pub->login($config{"username"}, $config{"password"});
 
