@@ -47,7 +47,7 @@ $mqtt->run;
 sub handle_mqtt_message {
 	my ($topic, $message) = @_;
 	utf8::encode($topic);
-	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic)
+	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic);
 	my ($message_hash, $ble_mac, $ble_rssi, $ble_data, $tag_name, $tag_data);
 
 	$message_hash = decode_json $message;
