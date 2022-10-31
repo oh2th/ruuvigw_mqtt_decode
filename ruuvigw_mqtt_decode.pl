@@ -6,11 +6,14 @@ use warnings;
 $SIG{HUP}  = \&signal_handler_hup;
 $SIG{INT}  = \&signal_handler_term;
 $SIG{TERM} = \&signal_handler_term;
+$SIG{ALARM} = \&signal_handler_alarm;
 use Getopt::Long qw(GetOptions);
 
 # Install extra modules
 use Net::MQTT::Simple;
 use JSON::PP qw(decode_json encode_json);
+use IO::Async::Timer::Periodic;
+use IO::Async::Loop;
 
 GetOptions(
     "debug"		=> \my $debug,
@@ -35,6 +38,13 @@ while (<INFILE>) {
 	my($mac, $name) = split(/\t/, $_);
 	$tags{$mac} = $name;
 }
+
+# Initialize MQTT publish handler
+my $loop = IO::Async::Loop->new;
+my $timer = IO::Async::Timer::Periodic->new(interval => 60, on_tick => sub { \&publish_mqtt_buffer }, );
+$timer->start;
+$loop->add( $timer );
+$loop->run;
 
 # Initialize MQTT subscriptions and run for ever.
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
@@ -106,6 +116,12 @@ sub handle_mqtt_message {
 	}			
 }
 
+# Called periodically to publish current data
+sub publish_mqtt_buffer {
+	#$mqtt->publish($pub_topic => $tag_data);
+	print "Heartbeat Interval $!\nWe should send collected data and flush the buffer.\n" if $debug;
+}
+
 sub signal_handler_hup {
 	$mqtt->disconnect();
 	print "HUP on signal $!\n" if $debug;
@@ -116,3 +132,4 @@ sub signal_handler_term {
 	print "Exit on signal $!\n" if $debug;
 	exit();
 }
+
