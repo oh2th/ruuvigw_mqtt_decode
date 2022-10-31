@@ -23,6 +23,12 @@ tie my %tags_data, 'IPC::Shareable', {
     destroy     => 1
 };
 
+tie my %config, 'IPC::Shareable', {
+    key         => 'ruuvigw_mqtt_config',
+    create      => 1,
+    destroy     => 1
+};
+
 GetOptions(
     "debug"		=> \my $debug,
     "config:s"	=> \(my $config = "config.txt"),
@@ -31,12 +37,13 @@ GetOptions(
 
 # Load known comfig from file
 open(INFILE, "<:encoding(UTF-8)", $config ) or die "Could not open ${config} $!";
-my %config;
+tied(%config)->lock(LOCK_EX);
 while (<INFILE>) {
 	chomp $_;
 	my($key, $data) = split(/\t/, $_);
 	$config{$key} = $data;
 }
+tied(%config)->unlock;
 
 # Load known tags from file
 open(INFILE, "<:encoding(UTF-8)", $tags) or die "Could not open ${tags} $!";
@@ -49,14 +56,15 @@ while (<INFILE>) {
 
 # Initialize MQTT publish handler
 my $event = Async::Event::Interval->new(10, \&publish_mqtt_buffer);
-
 $event->start;
 
 # Initialize MQTT subscriptions and run for ever.
+tied(%config)->lock(LOCK_SH);
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
 my $mqtt = Net::MQTT::Simple->new($config{"mqtthost"});
 $mqtt->login($config{"username"}, $config{"password"});
 $mqtt->subscribe($config{"sub_topic"}, \&handle_mqtt_message);
+tied(%config)->unlock;
 $mqtt->run;
 
 # Handler to received MQTT messages
@@ -126,14 +134,20 @@ sub handle_mqtt_message {
 
 # Called periodically to publish current data
 sub publish_mqtt_buffer {
+	tied(%config)->lock(LOCK_SH);
+	my $mqtt_pub = Net::MQTT::Simple->new($config{"mqtthost"});
+	$mqtt_pub->login($config{"username"}, $config{"password"});
+
 	tied(%tags_data)->lock(LOCK_EX);
 	foreach my $topic (keys %tags_data) {
-		$mqtt->publish($topic => $tags_data{$topic});
+		$mqtt_pub->publish($topic => $tags_data{$topic});
 		print "* * * * Publish: $topic = $tags_data{$topic}\n" if $debug;	
 	}
+	$mqtt_pub->disconnect();
 	print "* * * * All data published.\n" if $debug;
 	%tags_data = ();
 	tied(%tags_data)->unlock;
+	tied(%config)->unlock;
 }
 
 sub signal_handler_hup {
