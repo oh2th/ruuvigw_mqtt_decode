@@ -83,18 +83,18 @@ sub handle_mqtt_message {
 					my $voltage     = (($raw_data[13] * 256 + $raw_data[14])) / 32 + 1600;
 					$tag_data = sprintf("{\"type\":%d,\"t\":%d,\"rh\":%d,\"bu\":%d,\"ap\":%d,\"s\":%d}", $tag_type, $temperature, $humidity, $voltage, $pressure, $ble_rssi);
 				} else {
-					print "Unknown: adv_type = $ble_adv_type, mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, manu = $ble_manufacturer, data = $ble_data\n" if $debug;
+					print "Unknown: mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, manu = $ble_manufacturer, data = $ble_data\n" if $debug;
 				}
 			} elsif ($ble_type =~ /0x03/) {
 				my $ble_service = "0x" . substr($ble_adv_data, 12, 2) . substr($ble_adv_data,10, 2);
 				my $ble_data = "0x" . substr($ble_adv_data, 14);
 				if ($ble_data =~ /0x09FF/) { # Most likely a IFind beacon tag
-					print "iFind:   adv_type = $ble_adv_type, mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, serv = $ble_service, data = $ble_data\n" if $debug;
+					print "iFind:   mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, serv = $ble_service, data = $ble_data\n" if $debug;
 				} else {
-					print "Unknown: adv_type = $ble_adv_type, mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, manu = $ble_service, data = $ble_data\n" if $debug;
+					print "Unknown: mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, manu = $ble_service, data = $ble_data\n" if $debug;
 				}
 			} else {
-				print "Unknown: adv_type = $ble_adv_type, mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, data = $ble_adv_data\n" if $debug;
+				print "Unknown: mac = $ble_mac, rssi = $ble_rssi, len = $ble_len, type = $ble_type, data = $ble_adv_data\n" if $debug;
 			}
 		}
 		my $pub_topic = $config{"pub_topic"} . "/" . $tag_name;
