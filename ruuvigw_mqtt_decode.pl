@@ -54,12 +54,12 @@ while (<INFILE>) {
 	$tags{$mac} = $name;
 }
 
+tied(%config)->lock(LOCK_SH);
 # Initialize MQTT publish handler
-my $event = Async::Event::Interval->new(10, \&publish_mqtt_buffer);
+my $event = Async::Event::Interval->new($config{"pub_inter"}, \&publish_mqtt_buffer);
 $event->start;
 
 # Initialize MQTT subscriptions and run for ever.
-tied(%config)->lock(LOCK_SH);
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
 my $mqtt = Net::MQTT::Simple->new($config{"mqtthost"});
 $mqtt->login($config{"username"}, $config{"password"});
@@ -161,6 +161,7 @@ sub signal_handler_term {
 	$mqtt->disconnect();
 	$event->stop;
 	tied(%tags_data)->clean_up_all;
+	tied(%config)->clean_up_all;
 	print "Exit on signal!\n" if $debug;
 	exit();
 }

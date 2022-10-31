@@ -3,3 +3,4 @@ username	test
 password	test
 sub_topic	ruuvi/+/#
 pub_topic	ruuvi/decoded
+pub_inter   60
