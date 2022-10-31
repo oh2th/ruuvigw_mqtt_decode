@@ -48,11 +48,8 @@ while (<INFILE>) {
 }
 
 # Initialize MQTT publish handler
-my $event = Async::Event::Interval->new(
-    20,						# number of seconds between execs
-    \&publish_mqtt_buffer,	# code reference, or anonymous sub
-    'test'					# parameters to the callback
-);
+my $event = Async::Event::Interval->new(10, \&publish_mqtt_buffer);
+
 $event->start;
 
 # Initialize MQTT subscriptions and run for ever.
@@ -71,7 +68,7 @@ sub handle_mqtt_message {
 
 	my ($message_hash) = decode_json $message;
 	my ($ble_mac) = lc($ruuvi_mac);
-	my ($ble_rssi) = abs($message_hash->{rssi});
+	my ($ble_rssi) = $message_hash->{rssi}; $ble_rssi = abs($ble_rssi);
 	my ($ble_adv_data) = $message_hash->{data};
 	#print "Found $topic with RSSI = $ble_rssi.\n" if $debug;
 
@@ -129,15 +126,13 @@ sub handle_mqtt_message {
 
 # Called periodically to publish current data
 sub publish_mqtt_buffer {
-	#$mqtt->publish($pub_topic => $tag_data);
 	tied(%tags_data)->lock(LOCK_EX);
 	foreach my $topic (keys %tags_data) {
-		print "* * * * Publish: $topic = $tags_data{$topic}\n"; # if $debug;	
+		print "* * * * Publish: $topic = $tags_data{$topic}\n" if $debug;	
 	}
-	print "* * * * All data published.\n"; # if $debug;
+	print "* * * * All data published.\n" if $debug;
 	%tags_data = ();
 	tied(%tags_data)->unlock;
-	$event->restart if $event->error;
 }
 
 sub signal_handler_hup {
