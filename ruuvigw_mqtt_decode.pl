@@ -64,13 +64,13 @@ sub handle_mqtt_message {
 	my ($topic, $message) = @_;
 	utf8::encode($topic);
 	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic);
+	return if ($ruuvi_mac =~ /gw_status/); # Skip gw_status topic.
 	my ($tag_name, $tag_data);
 
 	my ($message_hash) = decode_json $message;
 	my ($ble_mac) = lc($ruuvi_mac);
 	my ($ble_rssi) = $message_hash->{rssi}; $ble_rssi = abs($ble_rssi);
 	my ($ble_adv_data) = $message_hash->{data};
-	#print "Found $topic with RSSI = $ble_rssi.\n" if $debug;
 
 	if (exists($tags{$ble_mac})) {
 		$tag_name = $tags{$ble_mac};
