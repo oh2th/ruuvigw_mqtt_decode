@@ -63,8 +63,8 @@ $mqtt->run;
 sub handle_mqtt_message {
 	my ($topic, $message) = @_;
 	utf8::encode($topic);
+	return if ($topic =~ /gw_status/); # Skip gw_status topic.
 	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic);
-	return if ($ruuvi_mac =~ /gw_status/); # Skip gw_status topic.
 	my ($tag_name, $tag_data);
 
 	my ($message_hash) = decode_json $message;
