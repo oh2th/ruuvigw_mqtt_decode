@@ -132,9 +132,9 @@ sub publish_mqtt_buffer {
 	#$mqtt->publish($pub_topic => $tag_data);
 	tied(%tags_data)->lock(LOCK_EX);
 	foreach my $topic (keys %tags_data) {
-		print "\n* * * * Publish: $topic = $tags_data{$topic}" if $debug;	
+		print "* * * * Publish: $topic = $tags_data{$topic}\n"; # if $debug;	
 	}
-	print "\n* * * * All data published." if $debug;
+	print "* * * * All data published.\n"; # if $debug;
 	%tags_data = ();
 	tied(%tags_data)->unlock;
 	$event->restart if $event->error;
