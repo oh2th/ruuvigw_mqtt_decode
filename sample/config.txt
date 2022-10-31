@@ -1,0 +1,5 @@
+mqtthost	mqtt.oh2th.fi:1883
+username	test
+password	test
+sub_topic	ruuvi/+/#
+pub_topic	ruuvi/decoded
