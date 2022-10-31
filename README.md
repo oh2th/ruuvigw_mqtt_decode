@@ -44,6 +44,7 @@ username    mqttuser
 password    SecretPasswordForMQTT
 sub_topic   ruuvi/+/#
 pub_topic   ruuvi/decoded
+pub_inter   60
 ```
 
 Note! the password is not encrypted and is sent in the clear as SSL is not implemented for now.
