@@ -3,6 +3,7 @@
 use utf8;
 use strict;
 use warnings;
+use Fcntl qw(:flock);
 $SIG{HUP}  = \&signal_handler_hup;
 $SIG{INT}  = \&signal_handler_term;
 $SIG{TERM} = \&signal_handler_term;
@@ -133,7 +134,7 @@ sub publish_mqtt_buffer {
 		print "\n* * * * Publish: $topic = $tags_data{$topic}" if $debug;	
 	}
 	print "\n* * * * All data published." if $debug;
-	%{$tags_data} = ();
+	%tags_data = ();
 	tied(%tags_data)->unlock;
 	$event->restart if $event->error;
 }
