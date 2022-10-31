@@ -67,6 +67,8 @@ Only the known tags are reported back to the broker with the matching name added
 
 # Sample data on the broker
 
+![MQTT Explorer](s/mqtt-explorer.jpg)
+
 ## The raw JSON message from the gateway
 
 ```text
