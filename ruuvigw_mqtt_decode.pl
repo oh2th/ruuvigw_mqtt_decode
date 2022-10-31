@@ -52,7 +52,7 @@ sub handle_mqtt_message {
 
 	$message_hash = decode_json $message;
 	$ble_mac = lc($ruuvi_mac)
-	$ble_rssi = abs($message_hash->{rssi})
+	$ble_rssi = $message_hash->{rssi}
 	$ble_data = $message_hash->{data}
 	print "Found $ble_mac with RSSI = $ble_rssi.\n" if $debug;
 
