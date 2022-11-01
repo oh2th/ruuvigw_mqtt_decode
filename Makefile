@@ -11,8 +11,24 @@ $(prefix)/bin/$(progname).pl: $(progname).pl
 $(systemctldir)/$(progname).service: init/$(progname).service
 	cp init/$(progname).service $(systemctldir)
 
-/etc/$(progname)/%.txt: config.txt known_tags.txt
+/etc/$(progname)/%.txt: %.txt
 	cp -p $< $@
 
 /etc/$(progname)/:
-    mkdir -p $@
+	mkdir -p $@
+
+enable:
+	systemctl enable $(progname).service
+
+disable:
+	systemctl disable $(progname).service
+
+start:
+	systemctl start $(progname).service
+
+restart:
+	systemctl restart $(progname).service
+
+stop:
+	systemctl stop $(progname).service
+
