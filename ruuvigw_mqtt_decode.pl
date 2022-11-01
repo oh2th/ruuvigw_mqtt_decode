@@ -16,13 +16,14 @@ $SIG{HUP}  = \&signal_handler_hup;
 $SIG{INT}  = \&signal_handler_term;
 $SIG{TERM} = \&signal_handler_term;
 
-# Share dataspace
+# Share dataspace for tags data.
 tie my %tags_data, 'IPC::Shareable', {
     key         => 'ruuvigw_mqtt_dataspace',
     create      => 1,
     destroy     => 1
 };
 
+# Share dataspace for configuration.
 tie my %config, 'IPC::Shareable', {
     key         => 'ruuvigw_mqtt_config',
     create      => 1,
@@ -35,16 +36,6 @@ GetOptions(
     "tags:s"		=> \(my $tags = "known_tags.txt"),
 ) or die "Options missing $!";
 
-# Load known comfig from file
-open(INFILE, "<:encoding(UTF-8)", $config ) or die "Could not open ${config} $!";
-tied(%config)->lock(LOCK_EX);
-while (<INFILE>) {
-	chomp $_;
-	my($key, $data) = split(/\t/, $_);
-	$config{$key} = $data;
-}
-tied(%config)->unlock;
-
 # Load known tags from file
 open(INFILE, "<:encoding(UTF-8)", $tags) or die "Could not open ${tags} $!";
 my %tags;
@@ -54,17 +45,32 @@ while (<INFILE>) {
 	$tags{$mac} = $name;
 }
 
+# Get shared lock to configuration data,
 tied(%config)->lock(LOCK_SH);
+
+# Load configuration data from file into shared space
+open(INFILE, "<:encoding(UTF-8)", $config ) or die "Could not open ${config} $!";
+while (<INFILE>) {
+	chomp $_;
+	my($key, $data) = split(/\t/, $_);
+	$config{$key} = $data;
+}
+
 # Initialize MQTT publish handler
 my $event = Async::Event::Interval->new($config{"pub_inter"}, \&publish_mqtt_buffer);
 $event->start;
 
-# Initialize MQTT subscriptions and run for ever.
+# Initialize MQTT subscriptions.
 $ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
 my $mqtt = Net::MQTT::Simple->new($config{"mqtthost"});
+$mqtt->last_will($config{"pub_topic"} . "/" ."lwt_main", "Subscribe is Online");
 $mqtt->login($config{"username"}, $config{"password"});
 $mqtt->subscribe($config{"sub_topic"}, \&handle_mqtt_message);
+
+# Unlock configuration data before MQTT loop.
 tied(%config)->unlock;
+
+# Run MQTT listener for subscribed topics for ever.
 $mqtt->run;
 
 # Handler to received MQTT messages
@@ -72,6 +78,7 @@ sub handle_mqtt_message {
 	my ($topic, $message) = @_;
 	utf8::encode($topic);
 	return if ($topic =~ /gw_status/); # Skip gw_status topic.
+
 	my ($prefix, $ruuvigw_mac, $ruuvi_mac) = split ('/', $topic);
 	my ($tag_name, $tag_data);
 
@@ -129,7 +136,9 @@ sub handle_mqtt_message {
 		tied(%tags_data)->unlock;
 	} else {
 		print "Skipped\t$ble_mac\n" if $debug;
-	}			
+	}
+	# Restart the event handler for interval if it has stoped for some reason.
+	$event->restart if $event->error;
 }
 
 # Called periodically to publish current data
@@ -137,6 +146,7 @@ sub publish_mqtt_buffer {
 	tied(%config)->lock(LOCK_SH);
 	$ENV{MQTT_SIMPLE_ALLOW_INSECURE_LOGIN} = 1;
 	my $mqtt_pub = Net::MQTT::Simple->new($config{"mqtthost"});
+	$mqtt->last_will($config{"pub_topic"} . "/" ."lwt_sub", "Publish is online.");
 	$mqtt_pub->login($config{"username"}, $config{"password"});
 
 	tied(%tags_data)->lock(LOCK_EX);
