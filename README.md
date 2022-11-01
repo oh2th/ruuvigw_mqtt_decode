@@ -44,6 +44,7 @@ username    mqttuser
 password    SecretPasswordForMQTT
 sub_topic   ruuvi/+/#
 pub_topic   ruuvi/decoded
+pub_inter   60
 ```
 
 Note! the password is not encrypted and is sent in the clear as SSL is not implemented for now.
@@ -65,6 +66,8 @@ f5:ae:63:b0:4d:3a   goa753/jääkaappi
 Only the known tags are reported back to the broker with the matching name added to the pub_topic from config.txt.
 
 # Sample data on the broker
+
+![MQTT Explorer](s/mqtt-explorer.jpg)
 
 ## The raw JSON message from the gateway
 
