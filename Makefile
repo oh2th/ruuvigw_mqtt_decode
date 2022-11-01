@@ -11,7 +11,7 @@ $(prefix)/bin/$(progname).pl: $(progname).pl
 $(systemctldir)/$(progname).service: init/$(progname).service
 	cp init/$(progname).service $(systemctldir)
 
-/etc/$(progname)/%.txt: config.txt known_tags.txt
+/etc/$(progname)/%.txt: %.txt
 	cp -p $< $@
 
 /etc/$(progname)/:
