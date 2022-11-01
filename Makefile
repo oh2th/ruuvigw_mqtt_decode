@@ -15,4 +15,20 @@ $(systemctldir)/$(progname).service: init/$(progname).service
 	cp -p $< $@
 
 /etc/$(progname)/:
-    mkdir -p $@
+	mkdir -p $@
+
+enable:
+	systemctl enable $(progname).service
+
+disable:
+	systemctl disable $(progname).service
+
+start:
+	systemctl start $(progname).service
+
+restart:
+	systemctl restart $(progname).service
+
+stop:
+	systemctl stop $(progname).service
+
