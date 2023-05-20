@@ -1,9 +1,12 @@
-ee:b4:25:31:cd:52	vaasanrinne7/ulko
+e5:d1:8a:44:eb:a6	vaasanrinne7/atk
 ec:ee:96:87:ce:fc	vaasanrinne7/sisä
+ee:b4:25:31:cd:52	vaasanrinne7/ulko
 f8:30:99:04:9c:cd	vaasanrinne7/sauna
 ec:b1:3e:0b:17:4f	vaasanrinne7/pakastin
 d7:a0:8f:0f:55:2d	vaasanrinne7/jääkaappi
 c3:32:96:a8:2a:06	vaasanrinne7/terassi
+fa:99:df:0f:c6:70	vaasanrinne7/pub
 f0:4e:e0:d3:56:b3	goa753/ulko
 c5:35:43:fd:63:2a	goa753/sisä
 f5:ae:63:b0:4d:3a	goa753/jääkaappi
+ee:0a:c8:49:19:62	goa753/pakastin
