@@ -151,7 +151,7 @@ sub publish_mqtt_buffer {
 
 	tied(%tags_data)->lock(LOCK_EX);
 	foreach my $topic (keys %tags_data) {
-		$mqtt_pub->publish($topic => $tags_data{$topic});
+		$mqtt_pub->retain($topic => $tags_data{$topic});
 		print "* * * * Publish: $topic = $tags_data{$topic}\n" if $debug;	
 	}
 	$mqtt_pub->disconnect();
