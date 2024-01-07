@@ -1,6 +1,6 @@
-mqtthost	mqtt.oh2th.fi:1883
+mqtthost	test.mosquitto.org:1883
 username	test
 password	test
 sub_topic	ruuvi/+/#
 pub_topic	ruuvi/decoded
-pub_inter   60
+pub_inter	60
