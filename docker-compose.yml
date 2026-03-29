@@ -1,0 +1,11 @@
+services:
+  ruuvigw_mqtt_decode:
+    build: .
+    image: ruuvigw_mqtt_decode
+    container_name: ruuvigw_mqtt_decode
+    restart: unless-stopped
+    # Mount the directory that contains your config.txt and known_tags.txt
+    volumes:
+      - ./config:/config:ro
+    # Optional: add --debug flag to enable verbose logging
+    # command: ["-config=/config/config.txt", "-tags=/config/known_tags.txt", "--debug"]

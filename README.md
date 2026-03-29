@@ -24,6 +24,41 @@ More to be supported eventually. Goal is to support the same as OH2MP ESP32 BLE2
 - Some MQTT broker like Mosquitto running somewhere.
 - Perl libraries Net::MQTT::Simple, JSON::PP, Async::Event::Interval
 
+## Running with Docker / docker-compose
+
+The easiest way to run the script is with the provided `Dockerfile` and `docker-compose.yml`.
+
+1. Copy the sample configuration files to a `config/` directory in the repo root and edit them:
+
+```bash
+mkdir config
+cp sample/config.txt config/config.txt
+cp sample/known_tags.txt config/known_tags.txt
+# Edit both files to match your environment
+```
+
+2. Build and start the container:
+
+```bash
+docker compose up -d --build
+```
+
+3. View logs:
+
+```bash
+docker compose logs -f
+```
+
+To enable verbose debug output, uncomment the `command` line in `docker-compose.yml` that appends `--debug`.
+
+### Restarting after configuration changes
+
+The container mounts the `config/` directory read-only, so you can edit `config.txt` or `known_tags.txt` and then restart the container to pick up the changes:
+
+```bash
+docker compose restart
+```
+
 ## Configure the Ruuvi Gateway
 
 - Open the Ruuvi Gateway configuration portal and go to Cloud Options page
