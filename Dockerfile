@@ -16,11 +16,12 @@ RUN cpanm --notest \
 WORKDIR /app
 
 COPY ruuvigw_mqtt_decode.pl /app/ruuvigw_mqtt_decode.pl
-RUN chmod 755 /app/ruuvigw_mqtt_decode.pl
+COPY sample/ /app/sample/
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod 755 /app/ruuvigw_mqtt_decode.pl /app/docker-entrypoint.sh
 
-# Config and tags files are expected to be mounted as volumes at runtime.
-# Default paths used by the script are config.txt and known_tags.txt in the
-# working directory.
+# Config and known_tags files are mounted via a volume at /config/ at runtime.
+# The entrypoint script copies the sample files there if they are not present yet.
 
-ENTRYPOINT ["perl", "/app/ruuvigw_mqtt_decode.pl"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["-config=/config/config.txt", "-tags=/config/known_tags.txt"]

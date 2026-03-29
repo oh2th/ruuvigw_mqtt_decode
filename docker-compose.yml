@@ -4,8 +4,11 @@ services:
     image: ruuvigw_mqtt_decode
     container_name: ruuvigw_mqtt_decode
     restart: unless-stopped
-    # Mount the directory that contains your config.txt and known_tags.txt
+    # Host path /docker/ruuvigw_mqtt_decode/ is mounted as /config/ inside the
+    # container. Change the host path to match your environment if needed.
+    # Sample config files are copied there automatically on first start
+    # if they do not already exist. Edit them on the host and restart the container.
     volumes:
-      - ./config:/config:ro
+      - /docker/ruuvigw_mqtt_decode:/config
     # Optional: add --debug flag to enable verbose logging
     # command: ["-config=/config/config.txt", "-tags=/config/known_tags.txt", "--debug"]

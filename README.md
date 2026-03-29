@@ -28,36 +28,35 @@ More to be supported eventually. Goal is to support the same as OH2MP ESP32 BLE2
 
 The easiest way to run the script is with the provided `Dockerfile` and `docker-compose.yml`.
 
-1. Copy the sample configuration files to a `config/` directory in the repo root and edit them:
+The container mounts `/docker/ruuvigw_mqtt_decode/` on the host as `/config/` inside the container. On first start, if `config.txt` or `known_tags.txt` are not present in that directory, the sample files are copied there automatically so you can edit them straight away.
 
-```bash
-mkdir config
-cp sample/config.txt config/config.txt
-cp sample/known_tags.txt config/known_tags.txt
-# Edit both files to match your environment
-```
-
-2. Build and start the container:
+1. Build and start the container:
 
 ```bash
 docker compose up -d --build
 ```
 
-3. View logs:
+2. Edit the configuration files on the host (created automatically on first start):
+
+```bash
+# Adjust MQTT broker, credentials, topics, and tag MACs
+sudo nano /docker/ruuvigw_mqtt_decode/config.txt
+sudo nano /docker/ruuvigw_mqtt_decode/known_tags.txt
+```
+
+3. Restart to apply your changes:
+
+```bash
+docker compose restart
+```
+
+4. View logs:
 
 ```bash
 docker compose logs -f
 ```
 
 To enable verbose debug output, uncomment the `command` line in `docker-compose.yml` that appends `--debug`.
-
-### Restarting after configuration changes
-
-The container mounts the `config/` directory read-only, so you can edit `config.txt` or `known_tags.txt` and then restart the container to pick up the changes:
-
-```bash
-docker compose restart
-```
 
 ## Configure the Ruuvi Gateway
 
