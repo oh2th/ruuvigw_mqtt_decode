@@ -1,6 +1,7 @@
-#!/usr/bin/perl -w -CSDA
+#!/usr/bin/perl -w
 
 use utf8;
+use open ':encoding(UTF-8)', ':std';
 use strict;
 use warnings;
 use Fcntl qw(:flock);
