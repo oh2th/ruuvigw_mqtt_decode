@@ -1,7 +1,7 @@
 services:
   ruuvigw_mqtt_decode:
     build: .
-    image: ruuvigw_mqtt_decode
+    image: ghcr.io/oh2th/ruuvigw_mqtt_decode
     container_name: ruuvigw_mqtt_decode
     restart: unless-stopped
     # Host path /docker/ruuvigw_mqtt_decode/ is mounted as /config/ inside the
